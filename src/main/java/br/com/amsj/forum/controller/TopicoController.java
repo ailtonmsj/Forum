@@ -2,22 +2,26 @@ package br.com.amsj.forum.controller;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.amsj.forum.controller.dto.TopicoDetailDto;
 import br.com.amsj.forum.controller.dto.TopicoDto;
 import br.com.amsj.forum.controller.form.TopicoForm;
+import br.com.amsj.forum.controller.form.TopicoUpdateForm;
 import br.com.amsj.forum.model.Topico;
 import br.com.amsj.forum.repository.CursoRepository;
 import br.com.amsj.forum.repository.TopicoRepository;
@@ -41,12 +45,12 @@ public class TopicoController {
 		return TopicoDto.converter(topicos);
 	}
 	
-	@GetMapping("/{idTopico}")
-	public TopicoDto get(@PathVariable Long idTopico){
+	@GetMapping("/{id}")
+	public TopicoDetailDto detail(@PathVariable Long id){
 		
-		Optional<Topico> topico = topicoRepository.findById(idTopico);
+		Topico topico = topicoRepository.getOne(id);
 		
-		return TopicoDto.converter(topico.get());
+		return new TopicoDetailDto(topico);
 	}
 	
 	@GetMapping("/byCursoName/{nomeCurso}")
@@ -58,6 +62,7 @@ public class TopicoController {
 	}
 	
 	@PostMapping
+	@Transactional
 	public ResponseEntity<TopicoDto> insert(@RequestBody @Valid TopicoForm topicoForm, UriComponentsBuilder uriComponentsBuilder) {
 		
 		Topico topico = topicoForm.converter(cursoRepository);
@@ -65,7 +70,25 @@ public class TopicoController {
 		
 		URI uri =  uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
 		
-		return ResponseEntity.created(uri).body(TopicoDto.converter(topico));
+		return ResponseEntity.created(uri).body(new TopicoDto(topico));
+	}
+	
+	@PutMapping("/{id}")
+	@Transactional
+	public ResponseEntity<TopicoDto> update(@PathVariable Long id, @RequestBody @Valid TopicoUpdateForm topicoUpdateForm) {
+		
+		Topico topico = topicoUpdateForm.update(id, topicoRepository);
+		
+		return ResponseEntity.ok(new TopicoDto(topico));
+	}
+	
+	@DeleteMapping("/{id}")
+	@Transactional
+	public ResponseEntity<?> delete(@PathVariable Long id) {
+		
+		topicoRepository.deleteById(id);
+		
+		return ResponseEntity.ok().build();
 	}
 
 }
