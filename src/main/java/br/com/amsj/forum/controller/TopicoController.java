@@ -56,11 +56,28 @@ public class TopicoController {
 		
 	}
 	
+	// Paging using static parameters
 	@GetMapping
 	public Page<TopicoDto> list(@RequestParam(required = false) String nomeCurso, 
 			@RequestParam int page, @RequestParam int qtd, @RequestParam String order){
 		
 		Pageable pageable = PageRequest.of(page, qtd, Direction.ASC, order);
+		
+		if(nomeCurso == null) {
+			Page<Topico> pageTopico = topicoRepository.findAll(pageable);
+			return TopicoDto.converter(pageTopico);
+		}
+		else {
+			Page<Topico> pageTopico = topicoRepository.findByCurso_Nome(nomeCurso, pageable);
+			return TopicoDto.converter(pageTopico);
+		}
+		
+	}
+	
+	// Paging using dynamic parameters
+	@GetMapping("/dynamicPaging")
+	public Page<TopicoDto> list(@RequestParam(required = false) String nomeCurso, 
+			 Pageable pageable){
 		
 		if(nomeCurso == null) {
 			Page<Topico> pageTopico = topicoRepository.findAll(pageable);
