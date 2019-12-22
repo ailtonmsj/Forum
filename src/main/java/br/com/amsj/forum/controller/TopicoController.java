@@ -1,13 +1,14 @@
 package br.com.amsj.forum.controller;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,7 @@ public class TopicoController {
 	CursoRepository cursoRepository;
 	
 	@GetMapping("/{id}")
+	@Cacheable(cacheNames = "topicosCache", key = "#id", unless = "#result.getStatusCodeValue() != 200")
 	public ResponseEntity<TopicoDetailDto> detail(@PathVariable Long id){
 		
 		Optional<Topico> optional = topicoRepository.findById(id);
@@ -93,6 +95,7 @@ public class TopicoController {
 	
 	@PostMapping
 	@Transactional
+	@CachePut(cacheNames = "topicosCache", key = "#result.getBody().getId()", unless = "#result.getStatusCodeValue() != 201")
 	public ResponseEntity<TopicoDto> insert(@RequestBody @Valid TopicoForm topicoForm, UriComponentsBuilder uriComponentsBuilder) {
 		
 		Topico topico = topicoForm.converter(cursoRepository);
@@ -105,6 +108,7 @@ public class TopicoController {
 	
 	@PutMapping("/{id}")
 	@Transactional
+	@CachePut(cacheNames = "topicosCache", key = "#id", unless = "#result.getStatusCodeValue() != 200")
 	public ResponseEntity<TopicoDto> update(@PathVariable Long id, @RequestBody @Valid TopicoUpdateForm topicoUpdateForm) {
 		
 		Optional<Topico> optional = topicoRepository.findById(id);
@@ -117,6 +121,7 @@ public class TopicoController {
 	
 	@DeleteMapping("/{id}")
 	@Transactional
+	@CacheEvict(value = "topicosCache", key = "#id")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		
 		Optional<Topico> optional = topicoRepository.findById(id);

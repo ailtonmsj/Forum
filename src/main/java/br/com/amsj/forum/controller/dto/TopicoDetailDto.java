@@ -23,10 +23,12 @@ public class TopicoDetailDto {
 		this.mensagem = topico.getMensagem();
 		this.dataCriacao = topico.getDataCriacao();
 		this.status = topico.getStatus();
-		this.autor = topico.getAutor().getNome();
-		
-		this.respostasDto = topico.getRespostas().stream().map(RespostaDto::new).collect(Collectors.toList());
-		
+		if(topico.getAutor() != null) {
+			this.autor = topico.getAutor().getNome();
+		}
+		if(topico.getRespostas() != null) {
+			this.respostasDto = topico.getRespostas().stream().map(RespostaDto::new).collect(Collectors.toList());
+		}
 	}
 
 	public Long getId() {
