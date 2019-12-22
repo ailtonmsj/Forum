@@ -1,12 +1,17 @@
 package br.com.amsj.forum.controller;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -38,14 +44,6 @@ public class TopicoController {
 	@Autowired
 	CursoRepository cursoRepository;
 	
-	@GetMapping
-	public List<TopicoDto> list(){
-		
-		List<Topico> topicos = topicoRepository.findAll();		
-		
-		return TopicoDto.converter(topicos);
-	}
-	
 	@GetMapping("/{id}")
 	public ResponseEntity<TopicoDetailDto> detail(@PathVariable Long id){
 		
@@ -58,12 +56,21 @@ public class TopicoController {
 		
 	}
 	
-	@GetMapping("/byCursoName/{nomeCurso}")
-	public List<TopicoDto> list(@PathVariable String nomeCurso){
+	@GetMapping
+	public Page<TopicoDto> list(@RequestParam(required = false) String nomeCurso, 
+			@RequestParam int page, @RequestParam int qtd, @RequestParam String order){
 		
-		List<Topico> topicos = topicoRepository.findByCurso_Nome(nomeCurso);
+		Pageable pageable = PageRequest.of(page, qtd, Direction.ASC, order);
 		
-		return TopicoDto.converter(topicos);
+		if(nomeCurso == null) {
+			Page<Topico> pageTopico = topicoRepository.findAll(pageable);
+			return TopicoDto.converter(pageTopico);
+		}
+		else {
+			Page<Topico> pageTopico = topicoRepository.findByCurso_Nome(nomeCurso, pageable);
+			return TopicoDto.converter(pageTopico);
+		}
+		
 	}
 	
 	@PostMapping

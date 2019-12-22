@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.data.domain.Page;
+
 import br.com.amsj.forum.model.StatusTopico;
 import br.com.amsj.forum.model.Topico;
 
@@ -39,14 +41,12 @@ public class TopicoDto {
 		return status;
 	}
 	
-	public static List<TopicoDto> converter(List<Topico> topicos) {
+	public static Page<TopicoDto> converter(Page<Topico> pageTopico) {
 		
-		List<TopicoDto> topicosDto = null;
+		Page<TopicoDto> topicosDto = null;
 		
-		if(topicos != null) {
-			Stream<Topico> streamTopico = topicos.stream();
-			topicosDto = streamTopico.map(t -> new TopicoDto(t)).collect(Collectors.toList());
-			return topicosDto;
+		if(pageTopico != null) {
+			return pageTopico.map(TopicoDto::new);
 		}
 		
 		return topicosDto;
