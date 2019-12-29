@@ -38,7 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 		.antMatchers(HttpMethod.GET, "/topicos").permitAll()
 		.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
-		.antMatchers(HttpMethod.POST, "/auth/*").permitAll()
+		.antMatchers(HttpMethod.POST, "/oauth/*").permitAll()
 		//.antMatchers(HttpMethod.GET, "/h2-console/*").permitAll()
 		.anyRequest().authenticated()
 		//.and().formLogin(); // for session

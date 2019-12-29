@@ -16,7 +16,7 @@ import br.com.amsj.forum.controller.dto.TokenDto;
 import br.com.amsj.forum.controller.form.FormLogin;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/oauth")
 public class AuthenticationController {
 	
 	@Autowired
