@@ -12,13 +12,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity
+import br.com.amsj.forum.config.security.filter.AuthorizationTokenFilter;
+import br.com.amsj.forum.repository.UsuarioRepository;
+
+@EnableWebSecurity//(debug = true) // Only for debug mode
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private TokenService tokenService;
 	
 	@Override
 	@Bean
@@ -43,6 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.anyRequest().authenticated()
 		//.and().formLogin(); // for session
 		.and().csrf().disable()
+		.addFilterBefore(new AuthorizationTokenFilter(usuarioRepository, tokenService), UsernamePasswordAuthenticationFilter.class) // Include the new Filter before the 
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
 	}
