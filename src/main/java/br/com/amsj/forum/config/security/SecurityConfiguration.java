@@ -30,6 +30,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private TokenService tokenService;
 	
+	private static String ACTUATOR_ROLE = "ACTUATOR"; //TODO CREATE A ENUM AND PERSIST
+	
 	@Override
 	@Bean
 	protected AuthenticationManager authenticationManager() throws Exception {
@@ -39,6 +41,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	// Configuration for authentication
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		
 		auth.userDetailsService(authenticationService).passwordEncoder(new BCryptPasswordEncoder());
 	}
 	
@@ -49,12 +52,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.antMatchers(HttpMethod.GET, "/topicos").permitAll()
 		.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
 		.antMatchers(HttpMethod.POST, "/oauth/*").permitAll()
-		.antMatchers(HttpMethod.GET, "/actuator/**").permitAll() // TODO
-		//.antMatchers(HttpMethod.GET, "/h2-console/*").permitAll()
-		.anyRequest().authenticated()
-		//.and().formLogin(); // for session
-		.and().csrf().disable()
-		.addFilterBefore(new AuthorizationTokenFilter(usuarioRepository, tokenService), UsernamePasswordAuthenticationFilter.class) // Include the new Filter before the 
+		.antMatchers(HttpMethod.GET, "/actuator/**").hasAnyAuthority(ACTUATOR_ROLE) // TODO
+		.antMatchers("/h2-console/**").permitAll() // FOR H2-CONSOLE
+		.anyRequest().authenticated().and()
+		//formLogin(); // for session
+		.csrf().disable()
+		.headers().frameOptions().disable().and() // FOR H2-CONSOLE
+		.addFilterBefore(new AuthorizationTokenFilter(usuarioRepository, tokenService), UsernamePasswordAuthenticationFilter.class) // Include the new Filter before the UsernamePasswordAuthenticationFilter 
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
 	}
@@ -63,6 +67,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		super.configure(web);
+		web.ignoring().antMatchers("/*.css");
+		web.ignoring().antMatchers("/*.js");
 	}
 	
 	public static void main(String[] args) {

@@ -18,12 +18,12 @@ public class Perfil implements GrantedAuthority {
 	@Column(name = "id")
 	private Long id;
 	
-	@Column(name = "name")
-	private String name;
+	@Column(name = "nome")
+	private String nome;
 
 	@Override
 	public String getAuthority() {
-		return name;
+		return nome;
 	}
 
 	public Long getId() {
@@ -34,12 +34,12 @@ public class Perfil implements GrantedAuthority {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getNome() {
+		return nome;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNome(String nome) {
+		this.nome = nome;
 	}
 	
 }
