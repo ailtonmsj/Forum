@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import br.com.amsj.forum.config.security.TokenService;
@@ -24,7 +26,7 @@ public class AuthorizationTokenFilter extends OncePerRequestFilter {
 		this.tokenService = tokenService;
 	}
 
-	private static String BEARER = "Bearer";
+	private static final String BEARER = "Bearer";
 	
 	private UsuarioRepository usuarioRepository;
 	
@@ -34,17 +36,23 @@ public class AuthorizationTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
-		String token = getBearerToken(request);
+		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		
-		boolean isValidoToken = tokenService.isValid(token);
-		
-		if(isValidoToken) {
-			authenticateToken(token);
+		if(authorizationHeader != null && !authorizationHeader.isEmpty()) {
+			
+			// Authenticate Bearer
+			if(authorizationHeader.startsWith(BEARER)) {
+				String token = getBearerToken(request);
+				boolean isValidoToken = tokenService.isValid(token);
+			
+				if(isValidoToken) {
+					authenticateToken(token);
+				}
+			}
 		}
-
 		filterChain.doFilter(request, response);
 	}
-
+	
 	private void authenticateToken(String token) {
 		Long id = tokenService.getIdUsuario(token);
 		Optional<Usuario> optional = usuarioRepository.findById(id);

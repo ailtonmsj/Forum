@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +27,14 @@ public class Usuario implements UserDetails {
 	private String email;
 	private String senha;
 	
+	public List<Perfil> getPerfis() {
+		return perfis;
+	}
+
+	public void setPerfis(List<Perfil> perfis) {
+		this.perfis = perfis;
+	}
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "USUARIO_PERFIL")
 	private List<Perfil> perfis = new ArrayList<>();

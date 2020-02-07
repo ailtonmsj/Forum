@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.amsj.forum.config.security.filter.AuthorizationBasicFilter;
 import br.com.amsj.forum.config.security.filter.AuthorizationTokenFilter;
 import br.com.amsj.forum.repository.UsuarioRepository;
 
@@ -59,6 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
 		.headers().frameOptions().disable().and() // FOR H2-CONSOLE
 		.addFilterBefore(new AuthorizationTokenFilter(usuarioRepository, tokenService), UsernamePasswordAuthenticationFilter.class) // Include the new Filter before the UsernamePasswordAuthenticationFilter 
+		.addFilterBefore(new AuthorizationBasicFilter(usuarioRepository), UsernamePasswordAuthenticationFilter.class) // Include the new Filter before the UsernamePasswordAuthenticationFilter
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
 	}
@@ -72,7 +74,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(new BCryptPasswordEncoder().encode("teste"));
+		System.out.println(new BCryptPasswordEncoder().encode("test"));
 	}
 
 }
